@@ -6,8 +6,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/")
 
 include_directories(Inc)
 
-add_executable(Sudoku
-        main.cpp
-        Src/board.cpp
-        Src/sudoku.cpp
-        )
+add_executable(Sudoku main.cpp Src/board.cpp Src/sudoku.cpp)
