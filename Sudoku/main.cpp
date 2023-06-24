@@ -1,62 +1,117 @@
-#include <iostream>
 #include <unistd.h>
-#include "create_final.h"
-#include "create_game.h"
+#include "sudoku.h"
 
 using namespace std;
 
-int main(int argc, char *argv[])
-{
-    int opt = 0;
-    while ((opt = getopt(argc, argv, "c:s:n:m:r:u")) != -1)
-    {
-        switch (opt)
-        {
-        // 生成数独终局：-c 100
-        case 'c':
-        {
-            printf("option c: %s\n", optarg);
-            int n = atoi(optarg);
-            if (n < 1 || n > 1000000)
-            {
-                printf("Parameters should range from 1 to 1000000\n");
-                return 0;
+class OptClass {
+public:
+    bool c;
+    bool s;
+    bool n;
+    bool m;
+    bool r;
+    bool u;
+
+    int num_final;
+    int num_game;
+    int difficulty;
+    int blank_min;
+    int blank_max;
+    string filename;
+
+    OptClass() : c(false), s(false), n(false), m(false), r(false), u(false),
+                 num_final(0), num_game(0), difficulty(0), blank_min(0), blank_max(0) {}
+
+    bool checkOpt() const {
+        if (m | r | u) {
+            return n;
+        }
+        return true;
+    }
+};
+
+int main(int argc, char *argv[]) {
+    OptClass option;
+    int opt, n;
+    string s;
+    while ((opt = getopt(argc, argv, "c:s:n:m:r:u")) != -1) {
+        switch (opt) {
+            case 'c': {
+                // 生成数独终局：-c 100
+                n = stoi(optarg);
+                if (n < 1 || n > 1000000) {
+                    printf("Parameters should range from 1 to 1000000\n");
+                    exit(-1);
+                }
+                option.c = true;
+                option.num_final = n;
+                break;
             }
-            create_final(atoi(optarg));
-            break;
-        }
-        // 求解数独：-s game.txt
-        case 's':
-            printf("option s: %s\n", optarg);
-            break;
-        // 生成数独游戏：-n 100
-        case 'n':
-        {
-            printf("option n: %s\n", optarg);
-            int n = atoi(optarg);
-            if (n < 1 || n > 10000)
-            {
-                printf("Parameters should range from 1 to 1000000\n");
-                return 0;
+            case 's': {
+                // 求解数独：-s game.txt
+                option.s = true;
+                option.filename = optarg;
+                break;
             }
-             create_game(atoi(optarg));
-            break;
+            case 'n': {
+                // 生成数独游戏：-n 100
+                n = stoi(optarg);
+                if (n < 1 || n > 10000) {
+                    printf("Parameters should range from 1 to 10000\n");
+                    exit(-1);
+                }
+                option.n = true;
+                option.num_game = n;
+                break;
+            }
+            case 'm': {
+                // 生成数独游戏的难度：-m 1
+                n = stoi(optarg);
+                if (n < 1 || n > 3) {
+                    printf("Parameters should range from 1 to 3\n");
+                    exit(-1);
+                }
+                option.m = true;
+                option.difficulty = n;
+                break;
+            }
+            case 'r': {
+                // 生成数独游戏的挖空范围：-r 20~55
+                s = optarg;
+                auto pos = s.find('~');
+                option.blank_min = stoi(s.substr(0, pos));
+                option.blank_max = stoi(s.substr(pos + 1));
+                if (option.blank_min < 20 || option.blank_max > 55 || option.blank_min > option.blank_max) {
+                    printf("Parameters should range from 20 to 55\n");
+                    exit(-1);
+                }
+                option.r = true;
+                break;
+            }
+            case 'u': {
+                // 生成游戏的解唯一
+                option.u = true;
+                break;
+            }
+            default:
+                printf("the command is wrong!\n");
         }
-        // 生成数独游戏的难度：-m 1
-        case 'm':
-            printf("option m: %s\n", optarg);
-            break;
-        // 生成数独游戏的挖空范围：-r 10~20
-        case 'r':
-            printf("option r: %s\n", optarg);
-            break;
-        // 生成游戏的解唯一
-        case 'u':
-            printf("option u\n");
-            break;
-        default:
-            printf("the command is wrong!\n");
-        }
+    }
+    if (!option.checkOpt()) {
+        printf("m, r, u必须与n共同使用才可。\n");
+        exit(-1);
+    }
+    if (option.c) {
+        generate_final(option.num_final);
+        printf("generate_final success.\n");
+    }
+    if (option.n) {
+        generate_game(option.num_game, option.u, option.difficulty, option.blank_min, option.blank_max);
+        printf("generate_game success.\n");
+    }
+    if (option.s) {
+        generate_answer(option.filename);
+        printf("generate_answer success.\n");
     }
     return 0;
 }
