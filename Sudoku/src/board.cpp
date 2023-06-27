@@ -1,4 +1,5 @@
 #include "board.h"
+#include <cstring>
 
 Board::Board(const std::string &str) {
     int pos = 0;
