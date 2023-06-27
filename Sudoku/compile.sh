@@ -1,0 +1,1 @@
+g++ -I Inc main.cpp Src/board.cpp Src/sudoku.cpp --coverage -o ./Sudoku

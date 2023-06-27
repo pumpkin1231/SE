@@ -1,4 +1,5 @@
-./run.sh
+./compile.sh
+./test.sh
 
 gcov Sudoku-main
 gcov Sudoku-board
@@ -12,8 +13,13 @@ mkdir build
 
 mv results build/results
 
+rm game.txt
+rm final.txt
+rm answer.txt
+
 rm *.gcov
 rm *.gcda
 rm *.gcno
 
 rm app.info
+rm Sudoku
